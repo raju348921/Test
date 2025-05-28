@@ -224,7 +224,6 @@
     }
 
     /* Mobile Responsive */
-
     @media (max-width: 700px) {
       form {
         flex-direction: column;
@@ -519,7 +518,6 @@
         let subtotal = 0;
 
         Array.from(itemsBody.rows).forEach(row => {
-          const descInput = row.cells[0].firstChild;
           const weightInput = row.cells[1].firstChild;
           const rateInput = row.cells[2].firstChild;
           const makingInput = row.cells[3].firstChild;
@@ -656,5 +654,7 @@
         });
       }
 
+      // Save bill to IndexedDB
       async function saveBill(bill) {
-        const 
+        try {
+          const db = a
