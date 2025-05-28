@@ -1,1 +1,660 @@
-# Test
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced Gold Billing System</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <!-- jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    :root {
+      --gold: #d4af37;
+      --dark-gold: #a1740b;
+      --bg-dark: #1a1a1a;
+      --bg-card: #2c2c2c;
+      --text-light: #f0e6d2;
+      --text-muted: #b3a171;
+      --border-gold: #a88923;
+      --shadow: 0 8px 16px rgba(212, 175, 55, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      color: var(--gold);
+      text-shadow: 0 0 8px var(--gold);
+      margin-bottom: 0.5em;
+      user-select: none;
+    }
+
+    .container {
+      background: var(--bg-card);
+      padding: 24px 32px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      max-width: 900px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      user-select: none;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 2px solid var(--border-gold);
+      background: var(--bg-dark);
+      color: var(--text-light);
+      font-size: 1rem;
+      width: 100%;
+      transition: border-color 0.3s ease;
+      font-family: 'Montserrat', sans-serif;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 10px var(--gold);
+    }
+
+    .form-group {
+      flex: 1 1 250px;
+      min-width: 210px;
+    }
+
+    .full-width {
+      flex-basis: 100%;
+    }
+
+    button {
+      background: var(--gold);
+      border: none;
+      border-radius: 12px;
+      padding: 14px 30px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--bg-card);
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--gold);
+      width: 180px;
+      align-self: flex-start;
+      transition: background 0.3s ease;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    button:hover:not(:disabled),
+    button:focus:not(:disabled) {
+      background: var(--dark-gold);
+      box-shadow: 0 6px 18px var(--dark-gold);
+      outline: none;
+    }
+
+    button:disabled {
+      background: #7a6b19;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    #add-item-btn {
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+
+    th,
+    td {
+      border: 1.5px solid var(--border-gold);
+      padding: 8px 12px;
+      text-align: center;
+      color: var(--text-light);
+      font-size: 1rem;
+    }
+
+    th {
+      background: var(--gold);
+      color: var(--bg-card);
+      user-select: none;
+    }
+
+    .small-input {
+      width: 100px;
+    }
+
+    .remove-btn {
+      background: transparent;
+      border: none;
+      color: var(--gold);
+      cursor: pointer;
+      font-size: 1.3rem;
+      font-weight: 700;
+      transition: color 0.2s ease;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .remove-btn:hover,
+    .remove-btn:focus {
+      color: var(--dark-gold);
+      outline: none;
+    }
+
+    .summary {
+      background: #3d3d3d;
+      border-radius: 12px;
+      padding: 16px 24px;
+      color: var(--text-light);
+      box-shadow: inset 0 0 12px var(--border-gold);
+      font-size: 1.2rem;
+      user-select: none;
+    }
+
+    .summary p {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      font-weight: 600;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .summary p.total {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--gold);
+      text-shadow: 0 0 5px var(--gold);
+    }
+
+    .summary input.small-input {
+      width: 80px;
+      padding: 6px 8px;
+      font-size: 1rem;
+      border-radius: 6px;
+    }
+
+    .footer {
+      margin-top: auto;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      user-select: none;
+      text-align: center;
+    }
+
+    /* Mobile Responsive */
+
+    @media (max-width: 700px) {
+      form {
+        flex-direction: column;
+      }
+
+      .form-group {
+        min-width: 100%;
+      }
+
+      .small-input {
+        width: 100%;
+      }
+
+      button {
+        width: 100% !important;
+        padding: 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border: 1px solid var(--border-gold);
+        border-radius: 10px;
+        padding: 10px;
+      }
+
+      td {
+        border: none;
+        border-bottom: 1px solid var(--border-gold);
+        position: relative;
+        padding-left: 50%;
+        text-align: left;
+        font-size: 0.9rem;
+      }
+
+      td:last-child {
+        border-bottom: 0;
+        padding-left: 0;
+        text-align: center;
+      }
+
+      td:before {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: 700;
+        color: var(--gold);
+        content: attr(data-label);
+      }
+
+      .remove-btn {
+        display: block;
+        margin: 0 auto;
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Advanced Gold Billing System</h1>
+
+  <div class="container" role="main" aria-labelledby="billing-title">
+    <form id="billing-form" aria-describedby="form-instructions">
+      <div class="form-group full-width">
+        <label for="invoice-number">Invoice Number</label>
+        <input type="text" id="invoice-number" name="invoiceNumber" placeholder="E.g. INV-001" required autocomplete="off" />
+      </div>
+
+      <div class="form-group full-width">
+        <label for="invoice-date">Date</label>
+        <input type="date" id="invoice-date" name="invoiceDate" required />
+      </div>
+
+      <div class="form-group">
+        <label for="customer-name">Customer Name</label>
+        <input type="text" id="customer-name" name="customerName" placeholder="Full Name" required autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label for="customer-contact">Contact Number</label>
+        <input type="text" id="customer-contact" name="customerContact" placeholder="Phone / Mobile" autocomplete="off" />
+      </div>
+
+      <div class="form-group full-width" style="display:flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; color: var(--gold);">Gold Items</h3>
+        <button type="button" id="add-item-btn" aria-label="Add Gold Item">+ Add Item</button>
+      </div>
+
+      <table aria-describedby="gold-items-desc" id="gold-items-table">
+        <caption id="gold-items-desc" style="text-align:left; padding: 6px 0; font-size: 0.9rem; color: var(--text-muted); user-select:none;">Enter gold item details below</caption>
+        <thead>
+          <tr>
+            <th scope="col">Description</th>
+            <th scope="col">Weight (grams)</th>
+            <th scope="col">Rate (₹ / g)</th>
+            <th scope="col">Making Charges (₹)</th>
+            <th scope="col">Amount (₹)</th>
+            <th scope="col">Remove</th>
+          </tr>
+        </thead>
+        <tbody id="items-body">
+          <!-- Rows will be added here -->
+        </tbody>
+      </table>
+
+      <div class="form-group full-width summary" aria-live="polite" aria-atomic="true" aria-relevant="all">
+        <p><span>Subtotal:</span> <span id="subtotal">₹0.00</span></p>
+        <p><span>Tax (%):</span>
+          <input type="number" id="tax-percent" name="taxPercent" min="0" step="0.01" value="3" class="small-input" aria-label="Tax percentage" />
+        </p>
+        <p><span>Tax Amount:</span> <span id="tax-amount">₹0.00</span></p>
+        <p><span>Discount (₹):</span>
+          <input type="number" id="discount" name="discount" min="0" step="0.01" value="0" class="small-input" aria-label="Discount amount in rupees" />
+        </p>
+        <hr style="border-color: var(--gold);" />
+        <p class="total"><span>Total Payable:</span> <span id="total-payable">₹0.00</span></p>
+      </div>
+
+      <div style="margin-top: 20px; display: flex; gap: 20px; flex-wrap: wrap;">
+        <button type="submit" id="generate-pdf-btn" aria-label="Generate PDF Invoice">Generate PDF</button>
+        <button type="button" id="save-bill-btn" aria-label="Save Bill">Save Bill</button>
+        <button type="button" id="show-bills-btn" aria-label="Show Saved Bills">Show Saved Bills</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="container" id="saved-bills-container" hidden>
+    <h2 style="color: var(--gold); user-select:none;">Saved Bills</h2>
+    <table aria-describedby="saved-bills-desc" id="saved-bills-table">
+      <caption id="saved-bills-desc" style="text-align:left; padding: 6px 0; font-size: 0.9rem; color: var(--text-muted); user-select:none;">List of previously saved bills</caption>
+      <thead>
+        <tr>
+          <th scope="col">Invoice No.</th>
+          <th scope="col">Date</th>
+          <th scope="col">Customer</th>
+          <th scope="col">Total</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="saved-bills-body">
+        <!-- Saved bills rows -->
+      </tbody>
+    </table>
+    <button type="button" id="hide-bills-btn" aria-label="Hide Saved Bills" style="margin-top: 10px;">Close</button>
+  </div>
+
+  <footer class="footer" role="contentinfo">
+    &copy; 2024 Advanced Gold Billing System
+  </footer>
+
+  <script>
+    (() => {
+      // Reference inputs and elements
+      const form = document.getElementById('billing-form');
+      const itemsBody = document.getElementById('items-body');
+      const subtotalEl = document.getElementById('subtotal');
+      const taxPercentInput = document.getElementById('tax-percent');
+      const taxAmountEl = document.getElementById('tax-amount');
+      const discountInput = document.getElementById('discount');
+      const totalPayableEl = document.getElementById('total-payable');
+
+      const addItemBtn = document.getElementById('add-item-btn');
+      const generatePdfBtn = document.getElementById('generate-pdf-btn');
+      const saveBillBtn = document.getElementById('save-bill-btn');
+      const showBillsBtn = document.getElementById('show-bills-btn');
+
+      const savedBillsContainer = document.getElementById('saved-bills-container');
+      const savedBillsBody = document.getElementById('saved-bills-body');
+      const hideBillsBtn = document.getElementById('hide-bills-btn');
+
+      // Utility: format number to currency
+      function formatCurrency(num) {
+        return '₹' + num.toFixed(2);
+      }
+
+      // Add new item row
+      function addItemRow(description = '', weight = '', rate = '', making = '') {
+        const tr = document.createElement('tr');
+
+        // Description cell
+        const descTd = document.createElement('td');
+        const descInput = document.createElement('input');
+        descInput.type = 'text';
+        descInput.placeholder = 'Gold Type / Description';
+        descInput.value = description;
+        descInput.required = true;
+        descInput.style.minWidth = '120px';
+        descInput.autocomplete = 'off';
+
+        descTd.appendChild(descInput);
+        descTd.setAttribute('data-label', 'Description');
+        tr.appendChild(descTd);
+
+        // Weight cell
+        const weightTd = document.createElement('td');
+        const weightInput = document.createElement('input');
+        weightInput.type = 'number';
+        weightInput.min = '0';
+        weightInput.step = '0.01';
+        weightInput.className = 'small-input';
+        weightInput.value = weight;
+        weightInput.required = true;
+        weightInput.autocomplete = 'off';
+
+        weightTd.appendChild(weightInput);
+        weightTd.setAttribute('data-label', 'Weight (grams)');
+        tr.appendChild(weightTd);
+
+        // Rate cell
+        const rateTd = document.createElement('td');
+        const rateInput = document.createElement('input');
+        rateInput.type = 'number';
+        rateInput.min = '0';
+        rateInput.step = '0.01';
+        rateInput.className = 'small-input';
+        rateInput.value = rate;
+        rateInput.required = true;
+        rateInput.autocomplete = 'off';
+
+        rateTd.appendChild(rateInput);
+        rateTd.setAttribute('data-label', 'Rate (₹ / g)');
+        tr.appendChild(rateTd);
+
+        // Making Charges cell
+        const makingTd = document.createElement('td');
+        const makingInput = document.createElement('input');
+        makingInput.type = 'number';
+        makingInput.min = '0';
+        makingInput.step = '0.01';
+        makingInput.className = 'small-input';
+        makingInput.value = making;
+        makingInput.required = true;
+        makingInput.autocomplete = 'off';
+
+        makingTd.appendChild(makingInput);
+        makingTd.setAttribute('data-label', 'Making Charges (₹)');
+        tr.appendChild(makingTd);
+
+        // Amount display cell
+        const amountTd = document.createElement('td');
+        amountTd.textContent = '₹0.00';
+        amountTd.style.fontWeight = '700';
+        amountTd.style.color = 'var(--gold)';
+        amountTd.setAttribute('data-label', 'Amount (₹)');
+        tr.appendChild(amountTd);
+
+        // Remove button cell
+        const removeTd = document.createElement('td');
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-btn';
+        removeBtn.title = 'Remove this item';
+        removeBtn.innerHTML = '&times;';
+
+        removeTd.appendChild(removeBtn);
+        removeTd.setAttribute('data-label', 'Remove');
+        tr.appendChild(removeTd);
+
+        // Remove button click
+        removeBtn.addEventListener('click', () => {
+          tr.remove();
+          calculateTotals();
+        });
+
+        // On input change, recalc amount and totals
+        [weightInput, rateInput, makingInput].forEach(input => {
+          input.addEventListener('input', calculateTotals);
+        });
+
+        itemsBody.appendChild(tr);
+
+        calculateTotals();
+      }
+
+      // Calculate amounts for each item and total
+      function calculateTotals() {
+        let subtotal = 0;
+
+        Array.from(itemsBody.rows).forEach(row => {
+          const descInput = row.cells[0].firstChild;
+          const weightInput = row.cells[1].firstChild;
+          const rateInput = row.cells[2].firstChild;
+          const makingInput = row.cells[3].firstChild;
+          const amountTd = row.cells[4];
+
+          const weight = parseFloat(weightInput.value) || 0;
+          const rate = parseFloat(rateInput.value) || 0;
+          const making = parseFloat(makingInput.value) || 0;
+
+          const amount = weight * rate + making;
+          amountTd.textContent = formatCurrency(amount);
+
+          subtotal += amount;
+        });
+
+        subtotalEl.textContent = formatCurrency(subtotal);
+
+        const taxPercent = parseFloat(taxPercentInput.value) || 0;
+        const taxAmount = (subtotal * taxPercent) / 100;
+        taxAmountEl.textContent = formatCurrency(taxAmount);
+
+        const discount = parseFloat(discountInput.value) || 0;
+
+        let totalPayable = subtotal + taxAmount - discount;
+        if (totalPayable < 0) totalPayable = 0;
+
+        totalPayableEl.textContent = formatCurrency(totalPayable);
+      }
+
+      // Generate PDF of invoice using jsPDF
+      async function generatePDF(details) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Styles for PDF
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 15;
+        const lineHeight = 7;
+        const goldColor = '#d4af37';
+
+        doc.setFont('helvetica');
+        doc.setFontSize(20);
+        doc.setTextColor(goldColor);
+        doc.text('Gold Billing Invoice', pageWidth / 2, 20, { align: 'center' });
+
+        doc.setTextColor(80);
+        doc.setFontSize(11);
+
+        // Customer & invoice info
+        let y = 30;
+        doc.text(`Invoice No: ${details.invoiceNumber}`, margin, y);
+        doc.text(`Date: ${details.date}`, pageWidth - margin, y, { align: 'right' });
+        y += lineHeight + 3;
+        doc.text(`Customer: ${details.customerName}`, margin, y);
+        if (details.customerContact) {
+          doc.text(`Contact: ${details.customerContact}`, margin, y + lineHeight);
+          y += lineHeight + 3;
+        } else {
+          y += 3;
+        }
+
+        // Table headers
+        y += 10;
+        const headers = ['Description', 'Weight (gm)', 'Rate (₹/gm)', 'Making (₹)', 'Amount (₹)'];
+        const colWidths = [65, 25, 30, 30, 30];
+        let x = margin;
+
+        doc.setFillColor(goldColor);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        for (let i = 0; i < headers.length; i++) {
+          doc.rect(x, y - 5, colWidths[i], lineHeight, 'F');
+          doc.text(headers[i], x + 2, y);
+          x += colWidths[i];
+        }
+
+        // Table body
+        doc.setFontSize(10);
+        doc.setTextColor(0);
+
+        y += lineHeight + 2;
+        details.items.forEach(item => {
+          x = margin;
+          doc.text(item.description, x + 2, y);
+          x += colWidths[0];
+          doc.text(item.weight.toFixed(2), x + 2, y, { align: 'right' });
+          x += colWidths[1];
+          doc.text(item.rate.toFixed(2), x + 2, y, { align: 'right' });
+          x += colWidths[2];
+          doc.text(item.making.toFixed(2), x + 2, y, { align: 'right' });
+          x += colWidths[3];
+          doc.text(item.amount.toFixed(2), x + 2, y, { align: 'right' });
+          y += lineHeight;
+          if (y > doc.internal.pageSize.getHeight() - 40) {
+            doc.addPage();
+            y = 20;
+          }
+        });
+
+        y += 8;
+        // Summary
+        doc.setFontSize(12);
+        doc.setTextColor(goldColor);
+        doc.text('Summary', margin, y);
+        y += lineHeight;
+
+        doc.setFontSize(11);
+        doc.setTextColor(0);
+        doc.text(`Subtotal: ₹${details.subtotal.toFixed(2)}`, margin, y);
+        y += lineHeight;
+        doc.text(`Tax (${details.taxPercent.toFixed(2)}%): ₹${details.taxAmount.toFixed(2)}`, margin, y);
+        y += lineHeight;
+        doc.text(`Discount: ₹${details.discount.toFixed(2)}`, margin, y);
+        y += lineHeight;
+        doc.setFontSize(14);
+        doc.setTextColor('red');
+        doc.text(`Total Payable: ₹${details.totalPayable.toFixed(2)}`, margin, y);
+
+        doc.save(`Invoice-${details.invoiceNumber}-${details.customerName}.pdf`);
+      }
+
+      // Load saved bills from IndexedDB
+      function openDB() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open('GoldBillingDB', 1);
+          request.onerror = () => reject(request.error);
+          request.onsuccess = () => resolve(request.result);
+          request.onupgradeneeded = event => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains('bills')) {
+              db.createObjectStore('bills', { keyPath: 'invoiceNumber' });
+            }
+          };
+        });
+      }
+
+      async function saveBill(bill) {
+        const 
